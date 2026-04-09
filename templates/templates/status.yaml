@@ -1,0 +1,28 @@
+# Work Item Status
+# Managed by specoven — do not edit manually during active phases
+
+id: "{{WI_ID}}"
+title: "{{TITLE}}"
+phase: "init"
+overall_score: 0
+
+scores:
+  clarity: 0
+  scope: 0
+  completeness: 0
+  feasibility: 0
+  testability: 0
+  implementation_readiness: 0
+  release_readiness: 0
+
+phase_history:
+  - phase: init
+    score: 0
+    timestamp: "{{CREATED_AT}}"
+
+blocked: false
+blocked_reason: null
+
+created_at: "{{CREATED_AT}}"
+updated_at: "{{CREATED_AT}}"
+closed_at: null
