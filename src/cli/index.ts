@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { Command } from 'commander';
 import { initCommand } from './init.js';
 import { statusCommand } from './status.js';
@@ -32,7 +33,14 @@ program
   .option('--agent <agent>', 'Agent adapter to install (claude|copilot|codex|cursor)')
   .option('--force', 'Overwrite existing .agents/ directory')
   .option('--dry-run', 'Show what will be created without writing files')
-  .action(initCommand);
+  .action(async (options) => {
+    try {
+      await initCommand(options);
+    } catch (err) {
+      console.error(chalk.red('❌ ' + (err instanceof Error ? err.message : String(err))));
+      process.exit(1);
+    }
+  });
 
 program
   .command('status')

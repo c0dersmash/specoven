@@ -18,15 +18,15 @@ See [AGENTS.md](./AGENTS.md) for the complete workflow documentation, skill defi
 
 | Phase | Command | Gate |
 |-------|---------|------|
-| Initialize | \`/init-work\` | — |
-| Propose | \`/propose-work\` | score ≥ 30 |
-| Validate | \`/validate-work\` | score ≥ 50 |
-| Design | \`/design-work\` | score ≥ 60 |
-| Code | \`/code-work\` | score ≥ 70 |
-| Verify | \`/verify-work\` | score ≥ 80 |
-| Submit | \`/submit-work\` | score ≥ 85 |
+| Initialize | \`/init-work\` | score ≥ 30 |
+| Propose | \`/propose-work\` | score ≥ 50 |
+| Validate | \`/validate-work\` | score ≥ 60 |
+| Design | \`/design-work\` | score ≥ 70 |
+| Code | \`/code-work\` | score ≥ 80 |
+| Verify | \`/verify-work\` | score ≥ 85 |
+| Submit | \`/submit-work\` | score ≥ 90 |
 | Feedback | \`/feedback-work\` | — |
-| Close | \`/close-work\` | score ≥ 90 |
+| Close | \`/close-work\` | — |
 
 ## Skills
 

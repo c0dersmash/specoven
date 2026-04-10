@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 export async function ensureDir(dirPath: string, dryRun = false): Promise<void> {
   if (dryRun) {
@@ -64,7 +65,7 @@ export function applyPlaceholders(content: string, vars: Record<string, string>)
 
 export async function findTemplatesDir(): Promise<string> {
   const candidates = [
-    path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'templates'),
+    path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'templates'),
     path.join(process.cwd(), 'templates'),
   ];
 

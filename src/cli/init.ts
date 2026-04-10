@@ -12,6 +12,7 @@ interface InitOptions {
   agent?: string;
   force?: boolean;
   dryRun?: boolean;
+  targetDir?: string;
 }
 
 const ADAPTERS: Record<string, AgentAdapter> = {
@@ -22,7 +23,7 @@ const ADAPTERS: Record<string, AgentAdapter> = {
 };
 
 export async function initCommand(options: InitOptions): Promise<void> {
-  const targetDir = process.cwd();
+  const targetDir = options.targetDir ?? process.cwd();
   const dryRun = options.dryRun ?? false;
   const force = options.force ?? false;
 
@@ -36,21 +37,25 @@ export async function initCommand(options: InitOptions): Promise<void> {
   const agentsExists = await fileExists(agentsDir);
 
   if (agentsExists && !force) {
-    console.log(chalk.red('❌ .agents/ directory already exists.'));
-    console.log(chalk.gray('   Use --force to overwrite.\n'));
-    process.exit(1);
+    throw new Error('.agents/ directory already exists. Use --force to overwrite.');
   }
 
   if (agentsExists && force) {
     console.log(chalk.yellow('⚠️  Overwriting existing .agents/ directory (--force)\n'));
+    if (dryRun) {
+      console.log(chalk.gray(`  [dry-run] rm -rf ${agentsDir}`));
+    } else {
+      await fs.promises.rm(agentsDir, { recursive: true, force: true });
+    }
   }
 
   let templatesDir: string;
   try {
     templatesDir = await findTemplatesDir();
   } catch (err) {
-    console.error(chalk.red('❌ ' + (err instanceof Error ? err.message : String(err))));
-    process.exit(1);
+    throw new Error(
+      'Could not find templates directory: ' + (err instanceof Error ? err.message : String(err))
+    );
   }
 
   console.log(chalk.gray(`Using templates from: ${templatesDir}\n`));
@@ -101,9 +106,9 @@ export async function initCommand(options: InitOptions): Promise<void> {
   if (options.agent) {
     const adapter = ADAPTERS[options.agent.toLowerCase()];
     if (!adapter) {
-      console.log(chalk.red(`\n❌ Unknown agent: ${options.agent}`));
-      console.log(chalk.gray(`   Valid agents: ${Object.keys(ADAPTERS).join(', ')}\n`));
-      process.exit(1);
+      throw new Error(
+        `Unknown agent: ${options.agent}. Valid agents: ${Object.keys(ADAPTERS).join(', ')}`
+      );
     }
 
     console.log(chalk.bold(`\n🤖 Installing ${adapter.name} adapter...`));
