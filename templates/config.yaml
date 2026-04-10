@@ -1,0 +1,153 @@
+# specoven configuration
+
+version: "0.1.0"
+
+scoring:
+  categories:
+    clarity:
+      weight: 0.15
+      description: "How clear and unambiguous the work item goal is"
+      rubric:
+        0: "No goal stated"
+        20: "Vague direction only"
+        40: "General goal known"
+        60: "Goal clear, some ambiguity"
+        80: "Clear goal, minor gaps"
+        100: "Crystal clear, no ambiguity"
+
+    scope:
+      weight: 0.15
+      description: "How well-bounded and scoped the work is"
+      rubric:
+        0: "No scope defined"
+        20: "Very broad, unbounded"
+        40: "General boundary known"
+        60: "Scope clear with some exceptions"
+        80: "Well scoped with edge cases"
+        100: "Perfectly bounded, no scope creep"
+
+    completeness:
+      weight: 0.15
+      description: "How complete the artifacts and requirements are"
+      rubric:
+        0: "No artifacts"
+        20: "Skeleton only"
+        40: "Key sections present, details missing"
+        60: "Most sections complete"
+        80: "Complete with minor gaps"
+        100: "Fully complete, nothing missing"
+
+    feasibility:
+      weight: 0.10
+      description: "How technically achievable the work is"
+      rubric:
+        0: "Technically impossible"
+        20: "Major unknowns"
+        40: "Feasible but risky"
+        60: "Feasible with some risk"
+        80: "Feasible, minor risks"
+        100: "Fully feasible, no blockers"
+
+    testability:
+      weight: 0.15
+      description: "How verifiable and testable the requirements are"
+      rubric:
+        0: "Cannot be tested"
+        20: "No acceptance criteria"
+        40: "Some criteria, not measurable"
+        60: "Criteria defined, partially testable"
+        80: "Testable with minor gaps"
+        100: "Fully testable, clear pass/fail"
+
+    implementation_readiness:
+      weight: 0.15
+      description: "How ready to begin coding"
+      rubric:
+        0: "Cannot start coding"
+        20: "Major design gaps"
+        40: "Can start but many unknowns"
+        60: "Can start with some gaps"
+        80: "Ready with minor clarifications"
+        100: "Fully ready, can code immediately"
+
+    release_readiness:
+      weight: 0.15
+      description: "How ready for production deployment"
+      rubric:
+        0: "Not deployable"
+        20: "Major gaps before release"
+        40: "Some work before release"
+        60: "Mostly ready, known gaps"
+        80: "Ready with minor polish"
+        100: "Production ready"
+
+  thresholds:
+    init_to_propose: 30
+    propose_to_validate: 50
+    validate_to_design: 60
+    design_to_code: 70
+    code_to_verify: 80
+    verify_to_submit: 85
+    submit_to_close: 90
+
+workflow:
+  phases:
+    - id: init
+      name: "Initialize"
+      command: "/init-work"
+      skill: "init-work"
+      produces: ["brief.md", "status.yaml"]
+
+    - id: propose
+      name: "Propose"
+      command: "/propose-work"
+      skill: "propose-work"
+      produces: ["proposal.md"]
+
+    - id: validate
+      name: "Validate"
+      command: "/validate-work"
+      skill: "validate-work"
+      produces: ["validation.md"]
+
+    - id: design
+      name: "Design"
+      command: "/design-work"
+      skill: "design-work"
+      produces: ["design.md"]
+
+    - id: code
+      name: "Code"
+      command: "/code-work"
+      skill: "code-work"
+      produces: ["implementation.md"]
+
+    - id: verify
+      name: "Verify"
+      command: "/verify-work"
+      skill: "verify-work"
+      produces: ["verification.md"]
+
+    - id: submit
+      name: "Submit"
+      command: "/submit-work"
+      skill: "submit-work"
+      produces: ["submission.md"]
+
+    - id: feedback
+      name: "Feedback"
+      command: "/feedback-work"
+      skill: "feedback-work"
+      produces: []
+
+    - id: close
+      name: "Close"
+      command: "/close-work"
+      skill: "close-work"
+      produces: ["retrospective.md"]
+
+  meta_phases:
+    - id: analyze
+      name: "Analyze Workflow"
+      command: "/analyze-workflow"
+      skill: "analyze-workflow"
