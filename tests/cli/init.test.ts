@@ -105,7 +105,18 @@ describe('initCommand — existing .agents/ handling', () => {
     const tmpDir = await makeTempDir();
     try {
       await fs.promises.mkdir(path.join(tmpDir, '.agents'), { recursive: true });
-      await expect(initCommand({ targetDir: tmpDir })).rejects.toThrow('.agents/ directory already exists');
+      await expect(initCommand({ targetDir: tmpDir })).rejects.toThrow('.agents');
+    } finally {
+      await fs.promises.rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('throws when AGENTS.md already exists and --force is not set', async () => {
+    const tmpDir = await makeTempDir();
+    try {
+      await fs.promises.writeFile(path.join(tmpDir, 'AGENTS.md'), 'preexisting', 'utf8');
+      await expect(initCommand({ targetDir: tmpDir })).rejects.toThrow('AGENTS.md');
+      expect(fs.existsSync(path.join(tmpDir, '.agents'))).toBe(false);
     } finally {
       await fs.promises.rm(tmpDir, { recursive: true, force: true });
     }
@@ -135,10 +146,12 @@ describe('initCommand — existing .agents/ handling', () => {
 });
 
 describe('initCommand — invalid --agent', () => {
-  it('throws for unknown agent name', async () => {
+  it('throws for unknown agent name without writing files', async () => {
     const tmpDir = await makeTempDir();
     try {
       await expect(initCommand({ agent: 'unknown-agent', targetDir: tmpDir })).rejects.toThrow('Unknown agent');
+      expect(fs.existsSync(path.join(tmpDir, '.agents'))).toBe(false);
+      expect(fs.existsSync(path.join(tmpDir, 'AGENTS.md'))).toBe(false);
     } finally {
       await fs.promises.rm(tmpDir, { recursive: true, force: true });
     }
@@ -152,6 +165,18 @@ describe('initCommand — agent adapters', () => {
       await initCommand({ agent: 'claude', targetDir: tmpDir });
       expect(fs.existsSync(path.join(tmpDir, 'CLAUDE.md'))).toBe(true);
       expect(fs.existsSync(path.join(tmpDir, '.claude', 'commands'))).toBe(true);
+    } finally {
+      await fs.promises.rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('normalizes agent casing for install and next-step messaging', async () => {
+    const tmpDir = await makeTempDir();
+    try {
+      const logSpy = vi.spyOn(console, 'log');
+      await initCommand({ agent: 'Claude', targetDir: tmpDir });
+      expect(fs.existsSync(path.join(tmpDir, 'CLAUDE.md'))).toBe(true);
+      expect(logSpy.mock.calls.flat().join('\n')).toContain('Claude Code: Use /command shortcuts');
     } finally {
       await fs.promises.rm(tmpDir, { recursive: true, force: true });
     }

@@ -26,6 +26,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   const targetDir = options.targetDir ?? process.cwd();
   const dryRun = options.dryRun ?? false;
   const force = options.force ?? false;
+  const agent = options.agent?.toLowerCase();
 
   console.log(chalk.bold.cyan('\n🔥 specoven init\n'));
 
@@ -34,18 +35,57 @@ export async function initCommand(options: InitOptions): Promise<void> {
   }
 
   const agentsDir = path.join(targetDir, '.agents');
-  const agentsExists = await fileExists(agentsDir);
+  const generatedPaths = [
+    agentsDir,
+    path.join(targetDir, 'AGENTS.md'),
+  ];
 
-  if (agentsExists && !force) {
-    throw new Error('.agents/ directory already exists. Use --force to overwrite.');
+  if (options.agent && (!agent || !(agent in ADAPTERS))) {
+    throw new Error(
+      `Unknown agent: ${options.agent}. Valid agents: ${Object.keys(ADAPTERS).join(', ')}`
+    );
   }
 
-  if (agentsExists && force) {
-    console.log(chalk.yellow('⚠️  Overwriting existing .agents/ directory (--force)\n'));
-    if (dryRun) {
-      console.log(chalk.gray(`  [dry-run] rm -rf ${agentsDir}`));
-    } else {
-      await fs.promises.rm(agentsDir, { recursive: true, force: true });
+  const adapter = agent ? ADAPTERS[agent] : undefined;
+
+  if (agent === 'claude') {
+    generatedPaths.push(
+      path.join(targetDir, 'CLAUDE.md'),
+      path.join(targetDir, '.claude', 'commands')
+    );
+  } else if (agent === 'copilot') {
+    generatedPaths.push(path.join(targetDir, '.github', 'copilot-instructions.md'));
+  } else if (agent === 'codex') {
+    generatedPaths.push(path.join(targetDir, 'CODEX.md'));
+  } else if (agent === 'cursor') {
+    generatedPaths.push(path.join(targetDir, '.cursorrules'));
+  }
+
+  const existingGeneratedPaths: string[] = [];
+  for (const generatedPath of generatedPaths) {
+    if (await fileExists(generatedPath)) {
+      existingGeneratedPaths.push(generatedPath);
+    }
+  }
+
+  if (existingGeneratedPaths.length > 0 && !force) {
+    const existingLabels = existingGeneratedPaths.map((generatedPath) =>
+      path.relative(targetDir, generatedPath)
+    );
+    throw new Error(
+      `Generated path(s) already exist: ${existingLabels.join(', ')}. Use --force to overwrite.`
+    );
+  }
+
+  if (existingGeneratedPaths.length > 0 && force) {
+    console.log(chalk.yellow('⚠️  Overwriting existing generated files/directories (--force)\n'));
+    for (const existingPath of existingGeneratedPaths) {
+      const relativePath = path.relative(targetDir, existingPath);
+      if (dryRun) {
+        console.log(chalk.gray(`  [dry-run] rm -rf ${relativePath}`));
+      } else {
+        await fs.promises.rm(existingPath, { recursive: true, force: true });
+      }
     }
   }
 
@@ -103,14 +143,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   await writeFile(path.join(workItemsDir, '.gitkeep'), '', dryRun);
   console.log(chalk.green('  ✓ work-items/.gitkeep'));
 
-  if (options.agent) {
-    const adapter = ADAPTERS[options.agent.toLowerCase()];
-    if (!adapter) {
-      throw new Error(
-        `Unknown agent: ${options.agent}. Valid agents: ${Object.keys(ADAPTERS).join(', ')}`
-      );
-    }
-
+  if (adapter) {
     console.log(chalk.bold(`\n🤖 Installing ${adapter.name} adapter...`));
     await adapter.install(targetDir, dryRun);
     console.log(chalk.green(`  ✓ ${adapter.description}`));
@@ -124,13 +157,13 @@ export async function initCommand(options: InitOptions): Promise<void> {
     console.log(chalk.gray('  2. Adjust .agents/config.yaml to tune scoring thresholds'));
     console.log(chalk.gray('  3. Start your first work item: /init-work'));
 
-    if (options.agent === 'claude') {
+    if (agent === 'claude') {
       console.log(chalk.gray('\n  Claude Code: Use /command shortcuts in .claude/commands/'));
-    } else if (options.agent === 'copilot') {
+    } else if (agent === 'copilot') {
       console.log(chalk.gray('\n  GitHub Copilot: Instructions loaded from .github/copilot-instructions.md'));
-    } else if (options.agent === 'codex') {
+    } else if (agent === 'codex') {
       console.log(chalk.gray('\n  Codex: Instructions loaded from CODEX.md'));
-    } else if (options.agent === 'cursor') {
+    } else if (agent === 'cursor') {
       console.log(chalk.gray('\n  Cursor: Rules loaded from .cursorrules'));
     }
   }

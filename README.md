@@ -22,6 +22,14 @@ npx specoven status
 npx specoven list
 ```
 
+Template-only install with `degit`:
+
+```bash
+npx degit c0dersmash/specoven/templates ./specoven-templates
+```
+
+Then copy `AGENTS.md` into your repo root, copy `config.yaml`, `skills/`, `commands/`, and `templates/` into `.agents/`, and create `work-items/.gitkeep`.
+
 ---
 
 ## The Workflow
@@ -104,11 +112,11 @@ specoven list
 
 ## Documentation
 
-- [Getting Started](docs/getting-started.md)
-- [Workflow Guide](docs/workflow-guide.md)
-- [Scoring System](docs/scoring-system.md)
-- [Customization](docs/customization.md)
-- [Agent Compatibility](docs/agent-compatibility.md)
+- [Getting Started](https://github.com/c0dersmash/specoven/blob/main/docs/getting-started.md)
+- [Workflow Guide](https://github.com/c0dersmash/specoven/blob/main/docs/workflow-guide.md)
+- [Scoring System](https://github.com/c0dersmash/specoven/blob/main/docs/scoring-system.md)
+- [Customization](https://github.com/c0dersmash/specoven/blob/main/docs/customization.md)
+- [Agent Compatibility](https://github.com/c0dersmash/specoven/blob/main/docs/agent-compatibility.md)
 
 ---
 

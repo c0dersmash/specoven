@@ -83,8 +83,9 @@ export function getRubricLabel(score: number): string {
 }
 
 export function formatScore(score: number): string {
-  const label = getRubricLabel(score);
-  const filled = Math.floor(score / 10);
+  const clampedScore = Math.max(0, Math.min(100, score));
+  const label = getRubricLabel(clampedScore);
+  const filled = Math.floor(clampedScore / 10);
   const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
-  return `${score}/100 [${bar}] — ${label}`;
+  return `${clampedScore}/100 [${bar}] — ${label}`;
 }

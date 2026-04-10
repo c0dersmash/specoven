@@ -175,4 +175,16 @@ describe('formatScore', () => {
     const result = formatScore(0);
     expect(result).toContain('░░░░░░░░░░');
   });
+
+  it('clamps negative scores to 0', () => {
+    const result = formatScore(-5);
+    expect(result).toContain('0/100');
+    expect(result).toContain('░░░░░░░░░░');
+  });
+
+  it('clamps scores above 100 to 100', () => {
+    const result = formatScore(125);
+    expect(result).toContain('100/100');
+    expect(result).toContain('██████████');
+  });
 });
